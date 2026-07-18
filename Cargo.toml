@@ -1,0 +1,26 @@
+[package]
+name = "cream-cli"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.75"
+
+[dependencies]
+futures = "0.3.32"
+html-escape = "0.2.14"
+reqwest = { version = "=0.12.28", features = ["json"] }
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1", features = ["full"] }
+idna = "=1.1.0"
+idna_adapter = "=1.1.0"
+indexmap = "=2.11.4"
+native-tls = "=0.2.13"
+openssl-sys = "=0.9.114"
+zeroize = "=1.8.2"
+
+[profile.release]
+opt-level = "z"
+lto = true
+strip = true
+
+[lints.rust]
+unused = "allow"
