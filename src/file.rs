@@ -173,7 +173,7 @@ pub fn file_unzip(zip_file: &Path, out_dir: &Path) -> Result<(), Box<dyn Error>>
         {
             use std::os::unix::fs::PermissionsExt;
             if let Some(mode) = file.unix_mode() {
-                fs::set_permissions(&outpath, fs::Permissions::from_mode(mode))?;
+                fs::set_permissions(&out_path, fs::Permissions::from_mode(mode))?;
             }
         }
     }
