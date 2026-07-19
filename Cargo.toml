@@ -1,15 +1,19 @@
 [package]
 name = "cream-cli"
+description = "CLI to collect and generate DLC list for CreamAPI config file"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.75"
 
 [dependencies]
+clap = { version = "=4.5.61", features = ["derive"] }
 futures = "0.3.32"
 html-escape = "0.2.14"
+md5 = "=0.7"
 reqwest = { version = "=0.12.28", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
+walkdir = "2.5"
 idna = "=1.1.0"
 idna_adapter = "=1.1.0"
 indexmap = "=2.11.4"
@@ -20,7 +24,7 @@ zeroize = "=1.8.2"
 [profile.release]
 opt-level = "z"
 lto = true
-strip = true
+#strip = true
 
 [lints.rust]
 unused = "allow"
