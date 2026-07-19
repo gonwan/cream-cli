@@ -7,6 +7,7 @@ use std::error::Error;
 use std::io::{Read, Seek};
 use std::path::PathBuf;
 use std::time::Duration;
+use std::{env, fs};
 mod file;
 mod rest;
 
@@ -38,6 +39,29 @@ struct Cli {
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     let cli = Cli::parse();
+    /* unzip lib */
+    let curr_dir = env::current_exe()?.parent()
+        .ok_or("Failed to get current directory")?
+        .to_path_buf();
+    let mut zip_file = curr_dir.join("lib.zip");
+    let out_dir = curr_dir.join("lib");
+    if !zip_file.exists() { /* for debugging */
+        let dir = curr_dir.parent()
+            .and_then(|p| p.parent())
+            .map(|p| p.to_path_buf())
+            .unwrap_or(PathBuf::from("."));
+        zip_file = dir.join("lib.zip");
+        if !zip_file.exists() {
+            return Err("Cream API not exist!".into());
+        }
+    }
+    if out_dir.exists() {
+        if curr_dir.is_file() {
+            fs::remove_file(out_dir.as_path())?;
+        }
+    } else {
+        file::file_unzip(&zip_file, &curr_dir)?;
+    }
     /* get dlc list */
     let mut headers = HeaderMap::new();
     headers.insert(
@@ -63,5 +87,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     steam_api_files.iter().for_each(|file|
         println!("dir={:?} name={} is64b={} patched={}", file.dir, file.name, file.is64b, file.patched)
     );
+    /* patch */
+    steam_api_files.iter().for_each(|file| {
+        let cream_config = file::file_generate_cream_config(file, cli.appid, &dlc_infos, out_dir.as_path()).unwrap_or("".into());
+        if cream_config != "" {
+            file::file_patch_steam_api_files(file, &cream_config, out_dir.as_path()).unwrap_or(());
+        }
+        println!("Patched file: dir={:?} name={}", file.dir, file.name);
+    });
     Ok(())
 }

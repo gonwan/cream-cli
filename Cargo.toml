@@ -9,11 +9,12 @@ rust-version = "1.75"
 clap = { version = "=4.5.61", features = ["derive"] }
 futures = "0.3.32"
 html-escape = "0.2.14"
-md5 = "=0.7"
+md5 = "=0.7.0"
 reqwest = { version = "=0.12.28", features = ["json"] }
 serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
-walkdir = "2.5"
+walkdir = "2.5.0"
+zip = "=4.2.0"
 idna = "=1.1.0"
 idna_adapter = "=1.1.0"
 indexmap = "=2.11.4"
