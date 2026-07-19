@@ -40,7 +40,7 @@ fn file_is_elf_64b(path: &Path) -> Result<bool, Box<dyn Error>> {
 
 pub fn find_steam_api_files(game_dir: &Path, is_proton: bool) -> Vec<SteamApiFile> {
     let steam_api_names = [
-        "steam_api.dll", "steam_api64.dll", "steam_api.so", "libsteam_api.dylib"
+        "steam_api.dll", "steam_api64.dll", "libsteam_api.so", "libsteam_api.dylib"
     ];
     /* search */
     let mut files: Vec<SteamApiFile> = WalkDir::new(game_dir)
@@ -54,7 +54,7 @@ pub fn find_steam_api_files(game_dir: &Path, is_proton: bool) -> Vec<SteamApiFil
                 let is64b = match name {
                     "steam_api.dll" => false,
                     "steam_api64.dll" => true,
-                    "steam_api.so" => file_is_elf_64b(path).unwrap_or(false),
+                    "libsteam_api.so" => file_is_elf_64b(path).unwrap_or(false),
                     "libsteam_api.dylib" => true,
                     _ => false,
                 };
@@ -62,8 +62,8 @@ pub fn find_steam_api_files(game_dir: &Path, is_proton: bool) -> Vec<SteamApiFil
                 let patched = match md5.as_str() {
                     "10638f7ac4e18ddbfa533eb6f307ae9e" => name == "steam_api.dll",
                     "87ea1775f0cee3649dbb31043eb51fc0" => name == "steam_api64.dll",
-                    "e887ed5ca49b253512fe97a98062b2cc" => name == "steam_api.so" && !is64b,
-                    "d0c4749c26a45b1f739ae09379f0487e" => name == "steam_api.so" && is64b,
+                    "e887ed5ca49b253512fe97a98062b2cc" => name == "libsteam_api.so" && !is64b,
+                    "d0c4749c26a45b1f739ae09379f0487e" => name == "libsteam_api.so" && is64b,
                     "4adaf7eb2aa28512d6dd510ef4554ecc" => name == "libsteam_api.dylib",
                     _ => false,
                 };
@@ -87,7 +87,7 @@ pub fn find_steam_api_files(game_dir: &Path, is_proton: bool) -> Vec<SteamApiFil
     } else {
         if cfg!(target_os = "linux") {
             deduped_files = files.into_iter()
-                .filter(|f| f.name == "steam_api.so")
+                .filter(|f| f.name == "libsteam_api.so")
                 .collect();
         } else if cfg!(target_os = "macos") {
             deduped_files = files.into_iter()
@@ -105,7 +105,7 @@ pub fn file_generate_cream_config(steam_api_file: &SteamApiFile, appid: u32, dlc
         "steam_api.dll" | "steam_api64.dll" => {
             fs::read_to_string(cream_dir.join("windows").join("cream_api.ini"))?
         }
-        "steam_api.so" => {
+        "libsteam_api.so" => {
             let arch = if steam_api_file.is64b { "x64" } else { "x86" };
             fs::read_to_string(cream_dir.join("linux").join(arch).join("cream_api.ini"))?
         }
@@ -128,7 +128,7 @@ pub fn file_patch_steam_api_files(steam_api_file: &SteamApiFile, cream_config: &
         let (patched_file, cream_sub_path) = match steam_api_file.name.as_str() {
             "steam_api.dll" => ("steam_api_o.dll", cream_dir.join("windows")),
             "steam_api64.dll" => ("steam_api64_o.dll", cream_dir.join("windows")),
-            "steam_api.so" => {
+            "libsteam_api.so" => {
                 let arch = if steam_api_file.is64b { "x64" } else { "x86" };
                 ("libsteam_api_o.so", cream_dir.join("linux").join(arch))
             }
