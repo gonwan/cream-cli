@@ -43,23 +43,23 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let curr_dir = env::current_exe()?.parent()
         .ok_or("Failed to get current directory")?
         .to_path_buf();
-    let mut zip_file = curr_dir.join("lib.zip");
     let out_dir = curr_dir.join("lib");
-    if !zip_file.exists() { /* for debugging */
-        let dir = curr_dir.parent()
-            .and_then(|p| p.parent())
-            .map(|p| p.to_path_buf())
-            .unwrap_or(PathBuf::from("."));
-        zip_file = dir.join("lib.zip");
-        if !zip_file.exists() {
-            return Err("Cream API not exist!".into());
-        }
+    if out_dir.exists() && out_dir.is_file() {
+        fs::remove_file(out_dir.as_path())?;
     }
-    if out_dir.exists() {
-        if curr_dir.is_file() {
-            fs::remove_file(out_dir.as_path())?;
+    let mut zip_file = curr_dir.join("lib.zip");
+    if !out_dir.exists() {
+        if !zip_file.exists() {
+            /* for dev purpose */
+            let dir = curr_dir.parent()
+                .and_then(|p| p.parent())
+                .map(|p| p.to_path_buf())
+                .unwrap_or(PathBuf::from("."));
+            zip_file = dir.join("lib.zip");
+            if !zip_file.exists() {
+                return Err("Cream API not exist!".into());
+            }
         }
-    } else {
         file::file_unzip(&zip_file, &curr_dir)?;
     }
     /* get dlc list */
@@ -85,15 +85,16 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let steam_api_files = file::find_steam_api_files(cli.output.as_path(), cli.proton);
     println!("=== Got steam api files === ");
     steam_api_files.iter().for_each(|file|
-        println!("dir={:?} name={} is64b={} patched={}", file.dir, file.name, file.is64b, file.patched)
+        println!("File: dir={:?} name={} is64b={} patched={}", file.dir, file.name, file.is64b, file.patched)
     );
     /* patch */
+    println!("=== Patched steam api files === ");
     steam_api_files.iter().for_each(|file| {
         let cream_config = file::file_generate_cream_config(file, cli.appid, &dlc_infos, out_dir.as_path()).unwrap_or("".into());
         if cream_config != "" {
             file::file_patch_steam_api_files(file, &cream_config, out_dir.as_path()).unwrap_or(());
         }
-        println!("Patched file: dir={:?} name={}", file.dir, file.name);
+        println!("File: dir={:?} name={}", file.dir, file.name);
     });
     Ok(())
 }
