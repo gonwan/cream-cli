@@ -15,12 +15,6 @@ serde = { version = "1.0", features = ["derive"] }
 tokio = { version = "1.53", features = ["full"] }
 walkdir = "2.5.0"
 zip = { version = "=4.2.0", default-features = false, features = ["deflate", "lzma"] }
-idna = "=1.1.0"
-idna_adapter = "=1.1.0"
-indexmap = "=2.11.4"
-native-tls = "=0.2.13"
-openssl-sys = "=0.9.114"
-zeroize = "=1.8.2"
 
 [profile.release]
 opt-level = "z"
