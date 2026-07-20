@@ -5,7 +5,7 @@ My toy project to work with rust. Supports Windows/Linux/MacOS. Supports Proton/
 
 #### Commandline Options
 ```shell
-$ cream-cli -h
+$ cream-cli.exe -h
 CLI to collect and generate DLC list for CreamAPI config file
 
 Usage: cream-cli.exe [OPTIONS] --appid <APPID> --output <OUTPUT>
@@ -26,7 +26,7 @@ $ cream-cli --appid 1069660 --output "/home/gonwan/.local/share/Steam/steamapps/
 ```
 
 #### Limitations
-- Steam APIs has rate limits.
+- Steam APIs have rate limits.
 - Public restful steam APIs may return incomplete DLC list. DLCs for limited time may be missing. But it works perfect 99% of the time.
-- The [Python](https://github.com/valvepython/steam) and [.NET](https://github.com/SteamRE/SteamKit) version of Steam API uses protobuf approach. They does return full list of DLCs.
+- The [Python](https://github.com/valvepython/steam) and [.NET](https://github.com/SteamRE/SteamKit) version of Steam API use protobuf approach. They do return full list of DLCs.
 - There is also an [online version](https://www.steamcmd.net/).

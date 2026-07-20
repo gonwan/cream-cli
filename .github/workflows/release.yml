@@ -1,0 +1,84 @@
+name: Release
+
+on: workflow_dispatch
+
+jobs:
+  build-win-x64:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.75
+      - name: Get Version
+        shell: bash
+        run: |
+          git fetch --tags --prune --unshallow
+          VERSION="$(git describe --tags --abbrev=0)"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Build Windows
+        run: cargo build --release
+      - name: Package Windows
+        shell: bash
+        run: |
+          unzip lib.zip
+          mv target/release/cream-cli.exe .
+          zip -r cream-cli-${{ env.VERSION }}-windows.zip cream-cli.exe lib/
+      - name: Upload Release Artifact - Windows
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: |
+            cream-cli-${{ env.VERSION }}-windows.zip
+
+  build-mac-x64:
+    runs-on: macos-14
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.75
+      - name: Get Version
+        run: |
+          git fetch --tags --prune --unshallow
+          VERSION="$(git describe --tags --abbrev=0)"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Build MacOS
+        run: cargo build --release
+      - name: Package MacOS
+        run: |
+          unzip lib.zip
+          mv target/release/cream-cli .
+          zip -r cream-cli-${{ env.VERSION }}-macos.zip cream-cli lib/
+      - name: Upload Release Artifact - MacOS
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: |
+            cream-cli-${{ env.VERSION }}-macos.zip
+
+  build-linux-x64:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: 1.75
+      - name: Get Version
+        run: |
+          git fetch --tags --prune --unshallow
+          VERSION="$(git describe --tags --abbrev=0)"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Build Linux
+        run: cargo build --release
+      - name: Package Linux
+        run: |
+          unzip lib.zip
+          mv target/release/cream-cli .
+          zip -r cream-cli-${{ env.VERSION }}-linux.zip cream-cli lib/
+      - name: Upload Release Artifact - Linux
+        uses: softprops/action-gh-release@v3
+        with:
+          tag_name: ${{ env.VERSION }}
+          files: |
+            cream-cli-${{ env.VERSION }}-linux.zip
