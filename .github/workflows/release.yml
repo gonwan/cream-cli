@@ -7,21 +7,40 @@ jobs:
     runs-on: windows-2022
     permissions:
       contents: write
+    defaults:
+      run:
+        shell: msys2 {0}
     steps:
       - uses: actions/checkout@v6
-      - uses: dtolnay/rust-toolchain@1.75
+      - name: Setup MSYS2 and MinGW64
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          # inherit lets MSYS2 see Cargo/Rust installed by the next step
+          path-type: inherit
+          cache: true
+          update: true
+          install: >-
+            git
+            zip
+            unzip
+            base-devel
+            mingw-w64-x86_64-toolchain
+      - uses: dtolnay/rust-toolchain@1.91
+        with:
+          target: x86_64-pc-windows-gnu
       - name: Get Version
         run: |
           git fetch --tags --prune --unshallow
-          $VERSION = git describe --tags --abbrev=0
-          echo "VERSION=$VERSION" >> $env:GITHUB_ENV
+          VERSION="$(git describe --tags --abbrev=0)"
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
       - name: Build Windows
-        run: cargo build --release --locked
+        run: cargo build --target x86_64-pc-windows-gnu --release --locked
       - name: Package Windows
         run: |
-          Expand-Archive -Path "lib.zip" -DestinationPath "."
-          Move-Item -Path "target/release/cream-cli.exe" -Destination "."
-          Compress-Archive -Path "cream-cli.exe", "lib" -DestinationPath "cream-cli-${{ env.VERSION }}-windows.zip"
+          unzip lib.zip
+          mv target/x86_64-pc-windows-gnu/release/cream-cli.exe .
+          zip -r cream-cli-${{ env.VERSION }}-windows.zip cream-cli.exe lib/
       - name: Upload Release Artifact - Windows
         uses: softprops/action-gh-release@v3
         with:
