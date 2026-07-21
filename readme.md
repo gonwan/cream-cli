@@ -1,9 +1,9 @@
 ### Cream CLI
-CLI to collect and generate DLC list for CreamAPI config file
+CLI to collect and generate DLC list for CreamAPI config file.
 
-My toy project to work with rust. Supports Windows/Linux/MacOS. Supports Proton/Crossover environments.
+My toy project to work with Rust. Supports Windows/Linux/MacOS. Supports Proton/Crossover environments.
 
-#### Commandline Options
+#### Options
 ```shell
 $ cream-cli.exe -h
 CLI to collect and generate DLC list for CreamAPI config file
@@ -22,8 +22,10 @@ Options:
 # windows
 $ cream-cli --appid 1158310 --output "D:\Program Files (x86)\Steam\steamapps\common\Crusader Kings III"
 # linux (proton)
-$ cream-cli --appid 1069660 --output "/home/gonwan/.local/share/Steam/steamapps/common/Age of Wonders 4" --proton
+$ ./cream-cli --appid 1669000 --output "/home/gonwan/.local/share/Steam/steamapps/common/Age of Wonders 4" --proton
 ```
+
+It also recognizes proxy settings in `HTTP_PROXY` and `HTTPS_PROXY` environment variables.
 
 #### Limitations
 - Steam APIs have rate limits.
